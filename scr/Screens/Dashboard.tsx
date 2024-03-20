@@ -4,7 +4,8 @@ import tw from 'twrnc';
 import {color} from '..';
 
 import {LineChart} from 'react-native-chart-kit';
-import {useState} from 'react';
+import {useState, useCallback, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WeeklyLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const monthlyLabels = ['1 W', '2 W', '3 W', '4 W'];
@@ -20,11 +21,36 @@ const userData = {
   monthlyCalories: 100000,
 };
 
-export const Dashboard = () => {
+export const Dashboard = ({navigation}: any) => {
   const [tab, setTab] = useState<string>('weekly');
+  const [, setUserData] = useState(); // need to add state and set data
+
+  const getData = useCallback(async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const {response}: any = await fetch('http://localhost:8080/data', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Need to add token
+      const data = await response.json();
+      setUserData(data);
+      console.log({data});
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
   return (
     <>
-      <TopNavigation />
+      <TopNavigation navigation={navigation} />
 
       <ScrollView>
         <View style={tw`h-full flex-1 mt-4 px-6 gap-y-6 `}>
@@ -64,7 +90,7 @@ export const Dashboard = () => {
             </Text>
           </View>
           <View style={tw`w-full justify-start items-center gap-4`}>
-            <View style={tw`w-ful flex-row justify-start items-center gap-4`}>
+            <View style={tw`w-full flex-row justify-start items-center gap-4`}>
               <CustomeButton
                 onClick={() => setTab('weekly')}
                 text="Track Weekly"

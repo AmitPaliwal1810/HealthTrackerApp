@@ -2,7 +2,7 @@ import {View, Image, Pressable} from 'react-native';
 import tw from 'twrnc';
 import {color} from '..';
 
-export const TopNavigation = () => {
+export const TopNavigation = ({navigation}: any) => {
   return (
     <View
       style={[
@@ -13,7 +13,7 @@ export const TopNavigation = () => {
       ]}>
       <Pressable
         onPress={() => {
-          console.log('hello');
+          navigation.navigate('/Home');
         }}
         style={({pressed}) => [
           tw`p-2 rounded-full`,
@@ -25,7 +25,7 @@ export const TopNavigation = () => {
       </Pressable>
       <Pressable
         onPress={() => {
-          console.log('hello');
+          navigation.navigate('/dashboard');
         }}
         style={({pressed}) => [
           tw`p-2 rounded-full`,

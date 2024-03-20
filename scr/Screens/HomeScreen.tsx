@@ -32,7 +32,7 @@ const DATA = [
 export const HomeScreen: FC<any> = ({navigation}) => {
   return (
     <>
-      <TopNavigation />
+      <TopNavigation navigation={navigation} />
       <View style={[tw`w-full h-full flex flex-1 justify-center p-4 bg-white`]}>
         <FlatList
           data={DATA}

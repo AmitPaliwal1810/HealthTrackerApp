@@ -1,14 +1,38 @@
 import {Text, TextInput, View} from 'react-native';
 import {CustomeButton, TopNavigation} from '../Components';
 import tw from 'twrnc';
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 import {color} from '..';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const StepTracker = () => {
+export const StepTracker = ({navigation}: any) => {
   const [step, setStep] = useState<string>('');
+
+  const handleSubmit = useCallback(async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const {response}: any = await fetch('http://localhost:8080/step', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          step: step,
+        }),
+      });
+      // Need to add token
+      const data = await response.json();
+
+      console.log({data});
+    } catch (error) {
+      console.log(error);
+    }
+  }, [step]);
+
   return (
     <>
-      <TopNavigation />
+      <TopNavigation navigation={navigation} />
       <View style={tw`h-full flex-1 mt-4 px-6 gap-y-12 `}>
         <Text style={tw`text-black text-4xl`}>Step Tracker</Text>
         <View>
@@ -31,7 +55,7 @@ export const StepTracker = () => {
         </View>
         <View style={tw`w-full justify-center items-center`}>
           <CustomeButton
-            onClick={() => console.log({step})}
+            onClick={handleSubmit}
             text="Save"
             style={[
               tw`h-12 w-20 rounded-lg flex justify-center items-center`,

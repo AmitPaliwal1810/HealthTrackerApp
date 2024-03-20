@@ -1,14 +1,37 @@
 import {Text, TextInput, View} from 'react-native';
 import {CustomeButton, TopNavigation} from '../Components';
 import tw from 'twrnc';
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 import {color} from '..';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const CaloriesTracker = () => {
+export const CaloriesTracker = ({navigation}: any) => {
   const [calories, setCalories] = useState<string>('');
+
+  const handleSubmit = useCallback(async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const {response}: any = await fetch('http://localhost:8080/calories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          calories: calories,
+        }),
+      });
+      // Need to add token
+      const data = await response.json();
+
+      console.log({data});
+    } catch (error) {
+      console.log(error);
+    }
+  }, [calories]);
   return (
     <>
-      <TopNavigation />
+      <TopNavigation navigation={navigation} />
       <View style={tw`h-full flex-1 mt-4 px-6 gap-y-12 `}>
         <Text style={tw`text-black text-4xl`}>Calories Tracker</Text>
         <View>
@@ -31,7 +54,7 @@ export const CaloriesTracker = () => {
         </View>
         <View style={tw`w-full justify-center items-center`}>
           <CustomeButton
-            onClick={() => console.log({calories})}
+            onClick={handleSubmit}
             text="Save"
             style={[
               tw`h-12 w-20 rounded-lg flex justify-center items-center`,
